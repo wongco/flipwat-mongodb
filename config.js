@@ -11,11 +11,11 @@ if (process.env.NODE_ENV === 'test') {
   DB_URI = 'postgresql:///flipwat-test';
 }
 
-const SECRET_KEY = process.env.SECRET_KEY || 'test-env-secret';
 const PORT = process.env.PORT || 5000;
+const MAX_PHRASE_LIMIT = process.env.MAX_PHRASE_LIMIT || 25;
 
 module.exports = {
-  SECRET_KEY,
   DB_URI,
-  PORT
+  PORT,
+  MAX_PHRASE_LIMIT
 };
