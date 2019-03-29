@@ -16,6 +16,19 @@ class Card {
     );
     return result.rows;
   }
+
+  /**
+   * @description - gets list of cards from the database - latest to oldest
+   * @property {number} limit - numer of items to limit to
+   * @property {number} page - pagination option
+   * @return {Promise <[ { id, text, createdat }, ... ]>}
+   */
+  static async getRandomCard() {
+    const result = await db.query(
+      'SELECT * FROM cards ORDER BY RANDOM() LIMIT 1'
+    );
+    return result.rows[0];
+  }
 }
 
 module.exports = Card;

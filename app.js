@@ -1,6 +1,7 @@
 /** Express app */
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 // don't provide http logging during automated tests
 if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
@@ -19,6 +20,7 @@ const cardRoutes = require('./routes/cards');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cors());
 // routing control - users route
 app.use('/cards', cardRoutes);
 

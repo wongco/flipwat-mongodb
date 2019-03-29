@@ -4,6 +4,7 @@ const router = new express.Router();
 
 // class models
 const APIError = require('../models/ApiError');
+const Card = require('../models/Card');
 
 /** Base Route: /cards */
 
@@ -11,8 +12,19 @@ const APIError = require('../models/ApiError');
  * desc: get a list of cards
  */
 router.get('/', async (req, res, next) => {
+  const cards = await Card.getCards({});
   return res.json({
-    message: 'get'
+    cards
+  });
+});
+
+/** GET - /cards
+ * desc: get a list of cards
+ */
+router.get('/random', async (req, res, next) => {
+  const card = await Card.getRandomCard();
+  return res.json({
+    card
   });
 });
 
