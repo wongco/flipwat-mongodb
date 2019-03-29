@@ -9,6 +9,4 @@ CREATE TABLE cards
   createdat timestamp DEFAULT current_timestamp NOT NULL
 );
 
--- COPY cards(question, answer, category) FROM '~/coding/flipwat-backend/rawcards.csv' DELIMITER ',' CSV HEADER;
--- \copy cards(question, answer, category) FROM '~/coding/flipwat-backend/rawcards.csv' DELIMITER ',' CSV;
-\copy cards(question, answer, category) FROM '~/coding/flipwat-backend/rawcards.csv' DELIMITER ',' CSV;
+\copy cards(question, answer, category) FROM 'rawcards.csv' DELIMITER ',' CSV;
