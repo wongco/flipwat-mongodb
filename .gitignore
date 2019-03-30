@@ -4,3 +4,5 @@ npm-debug.log
 .DS_Store
 rawcards.csv
 credentials.json
+token.json
+flip*.json
