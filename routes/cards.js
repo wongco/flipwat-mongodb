@@ -38,6 +38,23 @@ router.get('/random', async (req, res, next) => {
   }
 });
 
+/** GET - /cards/update
+ * desc: update postgreSQL from Google Doc
+ */
+// router.get('/update', async (req, res, next) => {
+//   try {
+//     const googleData = await getGoogleSheetData();
+//     const { data } = googleData;
+//     // await Card.replaceDatabase(data);
+//     return res.json({
+//       data
+//     });
+//   } catch (err) {
+//     const error = new APIError('could not update from GoogleAPI', 500);
+//     return next(error);
+//   }
+// });
+
 /** GET - /cards/:id
  * desc: get a specific card
  */

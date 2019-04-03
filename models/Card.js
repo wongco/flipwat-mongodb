@@ -36,7 +36,6 @@ class Card {
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getCard(id) {
-    console.log(id);
     const result = await db.query('SELECT * FROM cards WHERE id = $1', [id]);
     return result.rows[0];
   }

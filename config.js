@@ -13,9 +13,11 @@ if (process.env.NODE_ENV === 'test') {
 
 const PORT = process.env.PORT || 5000;
 const MAX_PHRASE_LIMIT = process.env.MAX_PHRASE_LIMIT || 25;
+const GOOGLE_SHEET_KEY = process.env.GOOGLE_SHEET_KEY;
 
 module.exports = {
   DB_URI,
   PORT,
-  MAX_PHRASE_LIMIT
+  MAX_PHRASE_LIMIT,
+  GOOGLE_SHEET_KEY
 };
