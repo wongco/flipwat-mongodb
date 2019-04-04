@@ -3,6 +3,10 @@
 // read .env files and make environmental variables
 require('dotenv').config();
 
+// MongoDB setup
+const MONGODB_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017';
+const MONGODB = process.env.MONGODB || 'cards';
+
 // pull db uri from .env or actual ENV
 let DB_URI = process.env.DATABASE_URL || 'postgresql:///flipwat';
 
@@ -19,5 +23,7 @@ module.exports = {
   DB_URI,
   PORT,
   MAX_PHRASE_LIMIT,
-  GOOGLE_SHEET_KEY
+  GOOGLE_SHEET_KEY,
+  MONGODB_URI,
+  MONGODB
 };
