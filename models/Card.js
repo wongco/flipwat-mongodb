@@ -1,7 +1,7 @@
 const db = require('../db');
-const { MAX_PHRASE_LIMIT, MONGODB } = require('../config');
+const { MAX_PHRASE_LIMIT } = require('../config');
 
-// initailizes mongoDB client for usage
+// initailizes mongoDB from Promise instance
 let client;
 db().then(resultClient => {
   client = resultClient;
@@ -17,13 +17,13 @@ class Card {
    * @return {Promise <[ { id, text, createdat }, ... ]>}
    */
   static async getCards({ page = 0, limit = MAX_PHRASE_LIMIT }) {
+    // mongoDB Utilization
     const result = await client
       .collection('cards')
       .find()
       .skip(page)
       .limit(limit)
       .toArray();
-
     return result;
 
     // POSTGRES DB Utilization
@@ -42,20 +42,49 @@ class Card {
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getRandomCard() {
-    const result = await db.query(
-      'SELECT * FROM cards ORDER BY RANDOM() LIMIT 1'
-    );
-    return result.rows[0];
+    // mongoDB Utilization
+    const result = await client
+      .collection('cards')
+      .aggregate([{ $sample: { size: 1 } }])
+      .toArray();
+
+    // if no results are found throw error
+    if (result.length === 0) {
+      throw new Error('No entries exist in the database!');
+    }
+    return result[0];
+
+    // POSTGRES DB Utilization
+    // const result = await db.query(
+    //   'SELECT * FROM cards ORDER BY RANDOM() LIMIT 1'
+    // );
+    // return result.rows[0];
   }
 
   /**
-   * @description - gets specific cards from the database
+   * @description - gets specific card from the database
    * @property {number} id - id number of card
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getCard(id) {
-    const result = await db.query('SELECT * FROM cards WHERE id = $1', [id]);
-    return result.rows[0];
+    // mongoDB Utilization
+    const result = await client
+      .collection('cards')
+      .find({ id: +id }) // serial id needs coercion
+      .toArray();
+
+    // if no results are found throw error
+    if (result.length === 0) {
+      throw new Error('Could not find specified id');
+    }
+    return result[0];
+
+    // POSTGRES DB Utilization
+    // const result = await db.query('SELECT * FROM cards WHERE id = $1', [id]);
+    // if(result.rows.length === 0) {
+    //   throw new Error('Could not find specified id');
+    // }
+    // return result.rows[0];
   }
 }
 
