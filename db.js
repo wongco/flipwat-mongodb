@@ -11,26 +11,14 @@
 // module.exports = client;
 
 /** MongoDB connection for app */
-const MongoClient = require('mongodb').MongoClient;
+const { MongoClient } = require('mongodb');
 const { MONGODB_URI, MONGODB } = require('./config');
 
-// setup mongo connection criteria
-const mongo = new MongoClient(MONGODB_URI, {
-  useNewUrlParser: true
-});
+function connect() {
+  // returns a promise client of mongodb with specific url and database
+  return MongoClient.connect(MONGODB_URI, { useNewUrlParser: true }).then(
+    client => client.db(MONGODB)
+  );
+}
 
-let db;
-// setup database connection and assign db correct mongodb instance
-mongo.connect(error => {
-  if (error) {
-    // kill express if cannot connect to db server
-    console.error(error);
-    process.exit(1);
-  }
-
-  console.log('Successfully connected to database');
-  // initialize db with mongo database instance
-  db = mongo.db(MONGODB);
-});
-
-module.exports = db;
+module.exports = connect;

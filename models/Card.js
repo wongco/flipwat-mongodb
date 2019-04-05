@@ -1,5 +1,12 @@
 const db = require('../db');
-const { MAX_PHRASE_LIMIT } = require('../config');
+const { MAX_PHRASE_LIMIT, MONGODB } = require('../config');
+
+// initailizes mongoDB client for usage
+let client;
+db().then(resultClient => {
+  client = resultClient;
+  console.log('Successfully connected to MongoDB database');
+});
 
 /** Card DB Model */
 class Card {
@@ -10,11 +17,22 @@ class Card {
    * @return {Promise <[ { id, text, createdat }, ... ]>}
    */
   static async getCards({ page = 0, limit = MAX_PHRASE_LIMIT }) {
-    const result = await db.query(
-      'SELECT * FROM cards ORDER BY createdat DESC OFFSET $1 LIMIT $2',
-      [page, limit]
-    );
-    return result.rows;
+    const result = await client
+      .collection('cards')
+      .find()
+      .skip(page)
+      .limit(limit)
+      .toArray();
+
+    return result;
+
+    // POSTGRES DB Utilization
+    // const result = await db.query(
+    //   'SELECT * FROM cards ORDER BY createdat DESC OFFSET $1 LIMIT $2',
+    //   [page, limit]
+    // );
+
+    // return result.rows[]
   }
 
   /**

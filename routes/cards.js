@@ -18,6 +18,7 @@ router.get('/', async (req, res, next) => {
       cards
     });
   } catch (err) {
+    console.log(err);
     const error = new APIError('could not retreive cards', 500);
     return next(error);
   }

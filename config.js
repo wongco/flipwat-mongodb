@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // MongoDB setup
 const MONGODB_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017';
-const MONGODB = process.env.MONGODB || 'cards';
+const MONGODB = process.env.MONGODB || 'cards_db';
 
 // pull db uri from .env or actual ENV
 let DB_URI = process.env.DATABASE_URL || 'postgresql:///flipwat';
