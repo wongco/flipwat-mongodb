@@ -3,16 +3,26 @@
 // read .env files and make environmental variables
 require('dotenv').config();
 
-// MongoDB setup
-const MONGODB_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017';
-const MONGODB = process.env.MONGODB || 'cards_db';
+// check if DBType is POSTGRES or MONGO in env variable DBTYPE
+const DBTYPE = process.env.DBTYPE || 'POSTGRES';
 
-// pull db uri from .env or actual ENV
-let DB_URI = process.env.DATABASE_URL || 'postgresql:///flipwat';
+let DB_URI; // mongodb or postgres database uri
+let MONGODB; // mongodb database name
 
-// if test environment is active, optimize for performance and convenience
-if (process.env.NODE_ENV === 'test') {
-  DB_URI = 'postgresql:///flipwat-test';
+if (DBTYPE === 'MONGO') {
+  // DB Selection is MonogoDB
+  DB_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017';
+  MONGODB = process.env.MONGODB || 'cards_db';
+} else {
+  // DB Selection is PostgreSQL
+
+  // pull db uri from .env or actual ENV
+  DB_URI = process.env.DATABASE_URL || 'postgresql:///flipwat';
+
+  // if test environment is active, optimize for performance and convenience
+  if (process.env.NODE_ENV === 'test') {
+    DB_URI = 'postgresql:///flipwat-test';
+  }
 }
 
 const PORT = process.env.PORT || 5000;
@@ -24,6 +34,6 @@ module.exports = {
   PORT,
   MAX_PHRASE_LIMIT,
   GOOGLE_SHEET_KEY,
-  MONGODB_URI,
-  MONGODB
+  MONGODB,
+  DBTYPE
 };
