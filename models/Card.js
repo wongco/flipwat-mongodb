@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { MAX_PHRASE_LIMIT } = require("../config");
+const { MAX_GET_LIMIT } = require("../config");
 
 const cardSchema = new mongoose.Schema({
   id: Number,
@@ -9,7 +9,7 @@ const cardSchema = new mongoose.Schema({
   createdat: { type: Date, default: Date.now }
 });
 
-const cardModel = new mongoose.model("Card", cardSchema);
+const cardModel = new mongoose.model("Card", cardSchema, "cards");
 
 /** Card DB Model */
 class Card {
@@ -19,7 +19,7 @@ class Card {
    * @property {number} page - pagination option
    * @return {Promise <[ { id, text, createdat }, ... ]>}
    */
-  static async getCards({ page = 0, limit = MAX_PHRASE_LIMIT }) {
+  static async getCards({ page = 0, limit = MAX_GET_LIMIT }) {
     const result = await cardModel
       .find({})
       .skip(page)

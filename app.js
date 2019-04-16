@@ -2,7 +2,10 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-require("./db"); // initialize mongodb
+const { connectToDatabase } = require("./db"); // initialize mongodb
+
+//initalize mongoDB
+connectToDatabase();
 
 // don't provide http logging during automated tests
 if (process.env.NODE_ENV !== "test" && process.env.NODE_ENV !== "production") {
@@ -16,6 +19,7 @@ const APIError = require("./models/ApiError");
 
 // routes
 const cardRoutes = require("./routes/cards");
+const categoryRoutes = require("./routes/categories");
 
 // middleware for parsing req.body and json
 app.use(express.json());
@@ -24,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 // routing control - users route
 app.use("/cards", cardRoutes);
+app.use("/categories", categoryRoutes);
 
 /** 404 handler */
 app.use(function(req, res, next) {

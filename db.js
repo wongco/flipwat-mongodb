@@ -1,24 +1,19 @@
 /** MongoDB connection for app */
-const { DB_URI, DATABASE } = require("./config");
+const { MONGODB_URI, DATABASE } = require("./config");
 
 const mongoose = require("mongoose");
 
-class Database {
-  constructor() {
-    this._connect(DB_URI);
-  }
-
-  _connect() {
-    mongoose
-      .connect(`${DB_URI}/${DATABASE}`, { useNewUrlParser: true })
-      .then(() => {
-        console.log("Database connection successful");
-      })
-      .catch(err => {
-        console.error(err.message);
-        console.error("Database connection error");
-      });
+async function connectToDatabase() {
+  try {
+    await mongoose.connect(`${MONGODB_URI}/${DATABASE}`, {
+      useNewUrlParser: true
+    });
+    console.log("Database connection successful");
+  } catch (error) {
+    console.error(error.message);
+    console.error("Database connection error");
+    process.exit(1);
   }
 }
 
-module.export = new Database();
+module.exports = { connectToDatabase };

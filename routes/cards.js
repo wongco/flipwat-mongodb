@@ -14,7 +14,6 @@ const Card = require("../models/Card");
 router.get("/", async (req, res, next) => {
   try {
     const cards = await Card.getCards({});
-    // console.log("in routes", cards);
     return res.json({
       cards
     });
