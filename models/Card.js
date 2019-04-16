@@ -28,9 +28,7 @@ class Card {
   }
 
   /**
-   * @description - gets list of cards from the database - latest to oldest
-   * @property {number} limit - numer of items to limit to
-   * @property {number} page - pagination option
+   * @description - gets random card from the database
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getRandomCard() {

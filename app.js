@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const db = require("./db"); // initialize mongodb
+require("./db"); // initialize mongodb
 
 // don't provide http logging during automated tests
 if (process.env.NODE_ENV !== "test" && process.env.NODE_ENV !== "production") {
