@@ -1,20 +1,21 @@
 /** Express app */
-const express = require('express');
+const express = require("express");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
+const db = require("./db"); // initialize mongodb
 
 // don't provide http logging during automated tests
-if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "test" && process.env.NODE_ENV !== "production") {
   // middleware for logging HTTP requests to console
-  const morgan = require('morgan');
-  app.use(morgan('tiny'));
+  const morgan = require("morgan");
+  app.use(morgan("tiny"));
 }
 
 // class models
-const APIError = require('./models/ApiError');
+const APIError = require("./models/ApiError");
 
 // routes
-const cardRoutes = require('./routes/cards');
+const cardRoutes = require("./routes/cards");
 
 // middleware for parsing req.body and json
 app.use(express.json());
@@ -22,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 // routing control - users route
-app.use('/cards', cardRoutes);
+app.use("/cards", cardRoutes);
 
 /** 404 handler */
 app.use(function(req, res, next) {

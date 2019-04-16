@@ -1,15 +1,15 @@
-const db = require('../db');
-const { MAX_PHRASE_LIMIT } = require('../config');
-const { DBTYPE } = require('../config');
+const mongoose = require("mongoose");
+const { MAX_PHRASE_LIMIT } = require("../config");
 
-let client;
-// initailizes mongoDB from Promise instance if DBType is Mongo
-if (DBTYPE === 'MONGO') {
-  db().then(resultClient => {
-    client = resultClient;
-    console.log('Successfully connected to MongoDB database');
-  });
-}
+const cardSchema = new mongoose.Schema({
+  id: Number,
+  question: String,
+  answer: String,
+  category: String,
+  createdat: { type: Date, default: Date.now }
+});
+
+const cardModel = new mongoose.model("Card", cardSchema);
 
 /** Card DB Model */
 class Card {
@@ -20,24 +20,11 @@ class Card {
    * @return {Promise <[ { id, text, createdat }, ... ]>}
    */
   static async getCards({ page = 0, limit = MAX_PHRASE_LIMIT }) {
-    // mongoDB Utilization
-    if (DBTYPE === 'MONGO') {
-      const result = await client
-        .collection('cards')
-        .find()
-        .skip(page)
-        .limit(limit)
-        .toArray();
-      return result;
-    }
-
-    // POSTGRES DB Utilization
-    const result = await db.query(
-      'SELECT * FROM cards ORDER BY createdat DESC OFFSET $1 LIMIT $2',
-      [page, limit]
-    );
-
-    return result.rows;
+    const result = await cardModel
+      .find({})
+      .skip(page)
+      .limit(limit);
+    return result;
   }
 
   /**
@@ -47,28 +34,16 @@ class Card {
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getRandomCard() {
-    // mongoDB Utilization
-    if (DBTYPE === 'MONGO') {
-      const result = await client
-        .collection('cards')
-        .aggregate([{ $sample: { size: 1 } }])
-        .toArray();
+    // Get a random entry
+    const count = await cardModel.count();
+    const random = Math.floor(Math.random() * count);
+    const result = await cardModel.findOne({}).skip(random);
 
-      // if no results are found throw error
-      if (result.length === 0) {
-        throw new Error('No entries exist in the database!');
-      }
-      return result[0];
-    }
-
-    // POSTGRES DB Utilization
-    const result = await db.query(
-      'SELECT * FROM cards ORDER BY RANDOM() LIMIT 1'
-    );
+    // if no results are found throw error
     if (result.length === 0) {
-      throw new Error('No entries exist in the database!');
+      throw new Error("No entries exist in the database!");
     }
-    return result.rows[0];
+    return result;
   }
 
   /**
@@ -77,26 +52,38 @@ class Card {
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getCard(id) {
-    // mongoDB Utilization
-    if (DBTYPE === 'MONGO') {
-      const result = await client
-        .collection('cards')
-        .find({ id: +id }) // serial id needs coercion
-        .toArray();
+    const result = await cardModel.findOne({ id: +id });
 
-      // if no results are found throw error
-      if (result.length === 0) {
-        throw new Error('Could not find specified id');
-      }
-      return result[0];
+    // if no results are found throw error
+    if (result.length === 0) {
+      throw new Error("No entries exist in the database!");
     }
+    return result;
+  }
 
-    // POSTGRES DB Utilization
-    const result = await db.query('SELECT * FROM cards WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      throw new Error('Could not find specified id');
+  /**
+   * @description - add a card to the database
+   * @param { object } arg - object representing first argument
+   * @param { integer } arg.id - id of card
+   * @param { string } arg.question - question on card
+   * @param { string } arg.answer - answer for question
+   * @param { date } arg.createdat - date question was added
+   * @return {Promise <{ id, text, createdat }>}
+   */
+  static async addCard({ id, question, answer, createdat = new Date() }) {
+    const result = new cardModel({
+      id,
+      question,
+      answer,
+      createdat
+    });
+    await result.save();
+
+    // if no results are found throw error
+    if (result.length === 0) {
+      throw new Error("No entries exist in the database!");
     }
-    return result.rows[0];
+    return { id, question, answer, createdat };
   }
 }
 
