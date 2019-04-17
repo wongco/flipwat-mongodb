@@ -6,7 +6,8 @@ const cardSchema = new mongoose.Schema({
   question: String,
   answer: String,
   category: String,
-  createdat: { type: Date, default: Date.now }
+  createdat: { type: Date, default: Date.now },
+  categories: [{ type: mongoose.Schema.ObjectId, ref: "Category" }]
 });
 
 const cardModel = new mongoose.model("Card", cardSchema, "cards");

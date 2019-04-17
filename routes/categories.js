@@ -1,3 +1,5 @@
+const { MAX_GET_LIMIT } = require("../config");
+
 // npm modules
 const express = require("express");
 const router = new express.Router();
@@ -12,8 +14,12 @@ const Category = require("../models/Category");
  * desc: get a list of categories
  */
 router.get("/", async (req, res, next) => {
+  const { limit = MAX_GET_LIMIT, page = 0 } = req.query;
   try {
-    const categories = await Category.getCategories({});
+    const categories = await Category.getCategories({
+      page: +page,
+      limit: +limit
+    });
     return res.json({
       categories
     });
@@ -45,7 +51,7 @@ router.get("/random", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const category = await Category.getCategory(id);
+    const category = await Category.getCategory(+id);
     return res.json({
       category
     });
@@ -60,10 +66,11 @@ router.get("/:id", async (req, res, next) => {
  */
 router.post("/", async (req, res, next) => {
   try {
-    const { id, name } = req.body.category;
+    const { id, name, cards } = req.body.category;
     const category = await Category.addCategory({
       id,
-      name
+      name,
+      cards
     });
     return res.json({
       category

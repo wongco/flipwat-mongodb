@@ -4,7 +4,8 @@ const { MAX_GET_LIMIT } = require("../config");
 const categorySchema = new mongoose.Schema({
   id: Number,
   name: String,
-  createdat: { type: Date, default: Date.now }
+  createdat: { type: Date, default: Date.now },
+  cards: [{ type: mongoose.Schema.ObjectId, ref: "Card" }]
 });
 
 const categoryModel = new mongoose.model(
@@ -21,11 +22,13 @@ class Category {
    * @property {number} page - pagination option
    * @return {Promise <[ { id, name, createdat }, ... ]>}
    */
-  static async getCategories({ page = 0, limit = MAX_GET_LIMIT }) {
+  static async getCategories({ page = 0, limit = +MAX_GET_LIMIT }) {
     const result = await categoryModel
       .find({})
       .skip(page)
-      .limit(limit);
+      .limit(limit)
+      .populate("cards", "id question answer createdat"); // triggers lookup of ref data
+
     return result;
   }
 
@@ -37,9 +40,11 @@ class Category {
     // Get a random entry
     const count = await categoryModel.count();
     const random = Math.floor(Math.random() * count);
-    const result = await categoryModel.findOne({}).skip(random);
+    const result = await categoryModel
+      .findOne({})
+      .skip(random)
+      .populate("cards", "id question answer createdat");
 
-    // if no results are found throw error
     if (result.length === 0) {
       throw new Error("No entries exist in the database!");
     }
@@ -52,9 +57,10 @@ class Category {
    * @return {Promise <{ id, text, createdat }>}
    */
   static async getCategory(id) {
-    const result = await categoryModel.findOne({ id: +id });
+    const result = await categoryModel
+      .findOne({ id })
+      .populate("cards", "id question answer createdat");
 
-    // if no results are found throw error
     if (result.length === 0) {
       throw new Error("No entries exist in the database!");
     }
@@ -69,15 +75,16 @@ class Category {
    * @param { date } arg.createdat - date category was added
    * @return {Promise <{ id, name, createdat }>}
    */
-  static async addCategory({ id, name, createdat = new Date() }) {
+  static async addCategory({ id, name, cards = [], createdat = new Date() }) {
     const result = new categoryModel({
       id,
       name,
-      createdat
+      createdat,
+      cards
     });
     await result.save();
 
-    return { id, name, createdat };
+    return { id, name, createdat, cards };
   }
 }
 
