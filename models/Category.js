@@ -72,6 +72,7 @@ class Category {
    * @param { object } arg - object representing first argument
    * @param { integer } arg.id - id of Category
    * @param { string } arg.name - name of Category
+   * @param { array } arg.cards - list of card ids belonging to Category
    * @param { date } arg.createdat - date category was added
    * @return {Promise <{ id, name, createdat }>}
    */
@@ -88,4 +89,4 @@ class Category {
   }
 }
 
-module.exports = Category;
+module.exports = { Category, categoryModel };

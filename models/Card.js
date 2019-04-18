@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const { MAX_GET_LIMIT } = require("../config");
+const { categoryModel } = require("./Category");
 
 const cardSchema = new mongoose.Schema({
   id: Number,
   question: String,
   answer: String,
   category: String,
-  createdat: { type: Date, default: Date.now },
-  categories: [{ type: mongoose.Schema.ObjectId, ref: "Category" }]
+  createdat: { type: Date, default: Date.now }
 });
 
 const cardModel = new mongoose.model("Card", cardSchema, "cards");
@@ -21,11 +21,43 @@ class Card {
    * @return {Promise <[ { id, text, createdat }, ... ]>}
    */
   static async getCards({ page = 0, limit = MAX_GET_LIMIT }) {
-    const result = await cardModel
+    const cards = await cardModel
       .find({})
       .skip(page)
-      .limit(limit);
-    return result;
+      .limit(limit)
+      .lean();
+
+    // return cardsWithCategories;
+
+    // const categoryPromises = cards.map(card => {
+    //   return categoryModel
+    //     .find({
+    //       cards: card._id
+    //     })
+    //     .select("-cards -__v")
+    //     .lean();
+    // });
+
+    // const categories = await Promise.all(categoryPromises);
+    // const cardList = cards.map((card, idx) => {
+    //   return { ...card, categories: categories[idx] };
+    // });
+
+    // return cardList;
+
+    async function getCardDetails(card) {
+      const categories = await categoryModel
+        .find({
+          cards: card._id
+        })
+        .select("-cards -__v")
+        .lean();
+      return { ...card, categories };
+    }
+
+    const cardListPromises = cards.map(card => getCardDetails(card));
+    const cardList = await Promise.all(cardListPromises);
+    return cardList;
   }
 
   /**

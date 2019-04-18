@@ -6,7 +6,7 @@ const router = new express.Router();
 
 // class models
 const APIError = require("../models/ApiError");
-const Category = require("../models/Category");
+const { Category } = require("../models/Category");
 
 /** Base Route: /categories */
 
