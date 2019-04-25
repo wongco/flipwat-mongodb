@@ -98,9 +98,16 @@ router.patch("/:id", async (req, res, next) => {
  * desc: delete a card
  */
 router.delete("/:id", async (req, res, next) => {
-  return res.json({
-    message: "delete"
-  });
+  try {
+    const { id } = req.params;
+    await Card.deleteCard(id);
+    return res.json({
+      message: `Card successfully deleted.`
+    });
+  } catch (err) {
+    const error = new APIError("could not delete card!", 500);
+    return next(error);
+  }
 });
 
 module.exports = router;

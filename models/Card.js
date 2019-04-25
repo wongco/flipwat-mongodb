@@ -149,6 +149,15 @@ class Card {
     const { createdAt } = cardDocument;
     return { id, question, answer, createdAt, updatedAt };
   }
+
+  /**
+   * @description - delete a category in the database
+   * @param { integer } id - id of Category
+   * @return { integer } id of deleted Category
+   */
+  static async deleteCard(id) {
+    await cardModel.deleteOne({ _id: id });
+  }
 }
 
 module.exports = Card;

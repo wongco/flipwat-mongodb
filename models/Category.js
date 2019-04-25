@@ -30,11 +30,18 @@ class Category {
       .populate("cards", "_id question answer createdAt updatedAt") // triggers lookup of ref data
       .lean();
 
-    const cleanResults = results.map(rawCategory => {
+    const cleanCategories = results.map(rawCategory => {
       const { _id, name, cards, createdAt, updatedAt } = rawCategory;
-      return { id: _id, name, cards, createdAt, updatedAt };
+
+      const cleanCards = cards.map(card => {
+        const { _id, question, answer, createdAt, updatedAt } = card;
+        return { id: _id, question, answer, createdAt, updatedAt };
+      });
+
+      return { id: _id, name, cards: cleanCards, createdAt, updatedAt };
     });
-    return cleanResults;
+
+    return cleanCategories;
   }
 
   /**
