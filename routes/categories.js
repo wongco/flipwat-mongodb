@@ -84,9 +84,20 @@ router.post("/", async (req, res, next) => {
  * desc: update a category
  */
 router.patch("/:id", async (req, res, next) => {
-  return res.json({
-    message: "patch"
-  });
+  try {
+    const { id } = req.params;
+    const { name } = req.body.category;
+    const category = await Category.updateCategory({
+      id,
+      name
+    });
+    return res.json({
+      category
+    });
+  } catch (err) {
+    const error = new APIError("could not update category!", 500);
+    return next(error);
+  }
 });
 
 /** DELETE - /categories/:id

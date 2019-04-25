@@ -1,3 +1,5 @@
+const { MAX_GET_LIMIT } = require("../config");
+
 // npm modules
 const express = require("express");
 const router = new express.Router();
@@ -13,7 +15,11 @@ const Card = require("../models/Card");
  */
 router.get("/", async (req, res, next) => {
   try {
-    const cards = await Card.getCards({});
+    const { limit = MAX_GET_LIMIT, page = 0 } = req.query;
+    const cards = await Card.getCards({
+      page: +page,
+      limit: +limit
+    });
     return res.json({
       cards
     });
@@ -39,30 +45,13 @@ router.get("/random", async (req, res, next) => {
   }
 });
 
-/** GET - /cards/update
- * desc: update postgreSQL from Google Doc
- */
-// router.get('/update', async (req, res, next) => {
-//   try {
-//     const googleData = await getGoogleSheetData();
-//     const { data } = googleData;
-//     // await Card.replaceDatabase(data);
-//     return res.json({
-//       data
-//     });
-//   } catch (err) {
-//     const error = new APIError('could not update from GoogleAPI', 500);
-//     return next(error);
-//   }
-// });
-
 /** GET - /cards/:id
  * desc: get a specific card
  */
-router.get("/:_id", async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
-    const { _id } = req.params;
-    const card = await Card.getCard(_id);
+    const { id } = req.params;
+    const card = await Card.getCard(id);
     return res.json({
       card
     });
@@ -91,7 +80,7 @@ router.post("/", async (req, res, next) => {
 /** PATCH - /cards/:id
  * desc: update a card
  */
-router.patch("/:_id", async (req, res, next) => {
+router.patch("/:id", async (req, res, next) => {
   return res.json({
     message: "patch"
   });
@@ -100,7 +89,7 @@ router.patch("/:_id", async (req, res, next) => {
 /** DELETE - /cards/:id
  * desc: delete a card
  */
-router.delete("/:_id", async (req, res, next) => {
+router.delete("/:id", async (req, res, next) => {
   return res.json({
     message: "delete"
   });
