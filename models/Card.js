@@ -14,18 +14,20 @@ const cardModel = new mongoose.model("Card", cardSchema, "cards");
 
 /** Card DB Model */
 class Card {
-  static async getCardDetails({ id, question, answer, createdAt, updatedAt }) {
+  static async getCardDetails({ _id, question, answer, createdAt, updatedAt }) {
     const rawCategories = await categoryModel
       .find({
-        cards: id
+        cards: _id
       })
       .select("-cards -__v -id")
       .lean();
+
     const categories = rawCategories.map(category => {
       const { _id, name, createdAt, updatedAt } = category;
       return { id: _id, name, createdAt, updatedAt };
     });
-    return { id, question, answer, categories, createdAt, updatedAt };
+
+    return { id: _id, question, answer, categories, createdAt, updatedAt };
   }
 
   /**
@@ -41,7 +43,7 @@ class Card {
       .limit(limit)
       .lean();
 
-    const cardListPromises = cards.map(card => Card.getCardDetails(card._id));
+    const cardListPromises = cards.map(card => Card.getCardDetails(card));
     const cardList = await Promise.all(cardListPromises);
     return cardList;
   }
@@ -54,21 +56,17 @@ class Card {
     // Get a random entry
     const count = await cardModel.count();
     const random = Math.floor(Math.random() * count);
-    const rawResult = await cardModel.findOne({}).skip(random);
+    const cardDocument = await cardModel
+      .findOne({})
+      .skip(random)
+      .lean();
 
     // if no results are found throw error
-    if (rawResult.length === 0) {
+    if (cardDocument.length === 0) {
       throw new Error("No entries exist in the database!");
     }
 
-    const { _id, question, answer, createdAt, updatedAt } = rawResult;
-    const card = Card.getCardDetails({
-      id: _id,
-      question,
-      answer,
-      createdAt,
-      updatedAt
-    });
+    const card = Card.getCardDetails(cardDocument);
     return card;
   }
 
@@ -78,21 +76,14 @@ class Card {
    * @return {Promise <{ id, text, createdAt }>}
    */
   static async getCard(id) {
-    const rawResult = await cardModel.findOne({ _id: id });
+    const cardDocument = await cardModel.findOne({ _id: id }).lean();
 
     // if no results are found throw error
-    if (rawResult.length === 0) {
+    if (cardDocument.length === 0) {
       throw new Error("No entries exist in the database!");
     }
 
-    const { _id, question, answer, createdAt, updatedAt } = rawResult;
-    const card = Card.getCardDetails({
-      id: _id,
-      question,
-      answer,
-      createdAt,
-      updatedAt
-    });
+    const card = Card.getCardDetails(cardDocument);
     return card;
   }
 
@@ -111,21 +102,21 @@ class Card {
     createdAt = new Date(),
     updatedAt = new Date()
   }) {
-    const result = new cardModel({
+    const cardDocument = new cardModel({
       question,
       answer,
       createdAt,
       updatedAt
     });
-    await result.save();
+    await cardDocument.save();
 
     // if no results are found throw error
-    if (result.length === 0) {
+    if (cardDocument.length === 0) {
       throw new Error("No entries exist in the database!");
     }
 
     return {
-      id: result._id,
+      id: cardDocument._id,
       question,
       answer,
       categories,
