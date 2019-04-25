@@ -6,28 +6,33 @@ const cardSchema = new mongoose.Schema({
   id: Number,
   question: String,
   answer: String,
-  createdat: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 const cardModel = new mongoose.model("Card", cardSchema, "cards");
 
 /** Card DB Model */
 class Card {
-  static async getCardDetails({ _id, question, answer, createdat }) {
-    const categories = await categoryModel
+  static async getCardDetails({ id, question, answer, createdAt, updatedAt }) {
+    const rawCategories = await categoryModel
       .find({
-        cards: _id
+        cards: id
       })
-      .select("-cards -__v")
+      .select("-cards -__v -id")
       .lean();
-    return { id: _id, question, answer, categories, createdat };
+    const categories = rawCategories.map(category => {
+      const { _id, name, createdAt, updatedAt } = category;
+      return { id: _id, name, createdAt, updatedAt };
+    });
+    return { id, question, answer, categories, createdAt, updatedAt };
   }
 
   /**
    * @description - gets list of cards from the database - latest to oldest
    * @property {number} limit - numer of items to limit to
    * @property {number} page - pagination option
-   * @return {Promise <[ { id, question, answer, categories, createdat }, ... ]>}
+   * @return {Promise <[ { id, question, answer, categories, createdAt, updatedAt }, ... ]>}
    */
   static async getCards({ page = 0, limit = MAX_GET_LIMIT }) {
     const cards = await cardModel
@@ -36,14 +41,14 @@ class Card {
       .limit(limit)
       .lean();
 
-    const cardListPromises = cards.map(card => Card.getCardDetails(card));
+    const cardListPromises = cards.map(card => Card.getCardDetails(card._id));
     const cardList = await Promise.all(cardListPromises);
     return cardList;
   }
 
   /**
    * @description - gets random card from the database
-   * @return {Promise <{ id, question, answer, createdat }>}
+   * @return {Promise <{ id, question, answer, createdAt, updatedAt }>}
    */
   static async getRandomCard() {
     // Get a random entry
@@ -56,15 +61,21 @@ class Card {
       throw new Error("No entries exist in the database!");
     }
 
-    const { _id, question, answer, createdat } = rawResult;
-    const card = Card.getCardDetails({ id: _id, question, answer, createdat });
+    const { _id, question, answer, createdAt, updatedAt } = rawResult;
+    const card = Card.getCardDetails({
+      id: _id,
+      question,
+      answer,
+      createdAt,
+      updatedAt
+    });
     return card;
   }
 
   /**
    * @description - gets specific card from the database
    * @property { string } id - id of card
-   * @return {Promise <{ id, text, createdat }>}
+   * @return {Promise <{ id, text, createdAt }>}
    */
   static async getCard(id) {
     const rawResult = await cardModel.findOne({ _id: id });
@@ -74,8 +85,14 @@ class Card {
       throw new Error("No entries exist in the database!");
     }
 
-    const { _id, question, answer, createdat } = rawResult;
-    const card = Card.getCardDetails({ id: _id, question, answer, createdat });
+    const { _id, question, answer, createdAt, updatedAt } = rawResult;
+    const card = Card.getCardDetails({
+      id: _id,
+      question,
+      answer,
+      createdAt,
+      updatedAt
+    });
     return card;
   }
 
@@ -84,19 +101,21 @@ class Card {
    * @param { object } arg - object representing first argument
    * @param { string } arg.question - question on card
    * @param { string } arg.answer - answer for question
-   * @param { date } arg.createdat - date question was added
-   * @return {Promise <{ id, text, createdat }>}
+   * @param { date } arg.createdAt - date question was added
+   * @return {Promise <{ id, text, createdAt, updatedAt }>}
    */
   static async addCard({
     question,
     answer,
     categories = [],
-    createdat = new Date()
+    createdAt = new Date(),
+    updatedAt = new Date()
   }) {
     const result = new cardModel({
       question,
       answer,
-      createdat
+      createdAt,
+      updatedAt
     });
     await result.save();
 
@@ -105,7 +124,39 @@ class Card {
       throw new Error("No entries exist in the database!");
     }
 
-    return { id: result._id, question, answer, categories, createdat };
+    return {
+      id: result._id,
+      question,
+      answer,
+      categories,
+      createdAt,
+      updatedAt
+    };
+  }
+
+  /**
+   * @description - update card ib the database
+   * @param { object } arg - object representing first argument
+   * @param { integer } arg.id - id of card
+   * @param { string } arg.question - question on card
+   * @param { string } arg.answer - answer for question
+   * @return {Promise <{ id, question, answer, createdAt, updatedAt }>}
+   */
+  static async updateCard({ id, question, answer }) {
+    const cardDocument = await cardModel.findOne({ _id: id });
+
+    if (cardDocument.length === 0) {
+      throw new Error("No entry exists in the database!");
+    }
+
+    const updatedAt = new Date();
+    cardDocument.question = question;
+    cardDocument.answer = answer;
+    cardDocument.updatedAt = updatedAt;
+    await cardDocument.save();
+
+    const { createdAt } = cardDocument;
+    return { id, question, answer, createdAt, updatedAt };
   }
 }
 

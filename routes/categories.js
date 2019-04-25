@@ -40,7 +40,7 @@ router.get("/random", async (req, res, next) => {
       category
     });
   } catch (err) {
-    const error = new APIError("could not retreive categories", 500);
+    const error = new APIError("could not retreive a category", 500);
     return next(error);
   }
 });
@@ -104,9 +104,16 @@ router.patch("/:id", async (req, res, next) => {
  * desc: delete a category
  */
 router.delete("/:id", async (req, res, next) => {
-  return res.json({
-    message: "delete"
-  });
+  try {
+    const { id } = req.params;
+    await Category.deleteCategory(id);
+    return res.json({
+      message: `Category successfully deleted.`
+    });
+  } catch (err) {
+    const error = new APIError("could not delete category!", 500);
+    return next(error);
+  }
 });
 
 module.exports = router;

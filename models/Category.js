@@ -64,9 +64,9 @@ class Category {
    * @property { string } id - id of category
    * @return {Promise <{ id, name, cards, createdAt, updatedAt }>}
    */
-  static async getCategory(_id) {
+  static async getCategory(id) {
     const categoryDocument = await categoryModel
-      .findOne({ _id })
+      .findOne({ _id: id })
       .populate("cards", "_id question answer createdAt updatedAt")
       .lean();
 
@@ -75,7 +75,7 @@ class Category {
     }
 
     const { name, cards, createdAt, updatedAt } = categoryDocument;
-    return { id: _id, name, cards, createdAt, updatedAt };
+    return { id, name, cards, createdAt, updatedAt };
   }
 
   /**
@@ -126,6 +126,15 @@ class Category {
 
     const { createdAt } = categoryDocument;
     return { id, name, createdAt, updatedAt };
+  }
+
+  /**
+   * @description - delete a category in the database
+   * @param { integer } id - id of Category
+   * @return { integer } id of deleted Category
+   */
+  static async deleteCategory(id) {
+    await categoryModel.deleteOne({ _id: id });
   }
 }
 

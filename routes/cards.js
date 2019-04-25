@@ -81,9 +81,17 @@ router.post("/", async (req, res, next) => {
  * desc: update a card
  */
 router.patch("/:id", async (req, res, next) => {
-  return res.json({
-    message: "patch"
-  });
+  try {
+    const { id } = req.params;
+    const { question, answer } = req.body.card;
+    const card = await Card.updateCard({ id, question, answer });
+    return res.json({
+      card
+    });
+  } catch (err) {
+    const error = new APIError("could not update card!", 500);
+    return next(error);
+  }
 });
 
 /** DELETE - /cards/:id
