@@ -59,10 +59,10 @@ router.get("/random", async (req, res, next) => {
 /** GET - /cards/:id
  * desc: get a specific card
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:_id", async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const card = await Card.getCard(id);
+    const { _id } = req.params;
+    const card = await Card.getCard(_id);
     return res.json({
       card
     });
@@ -77,8 +77,8 @@ router.get("/:id", async (req, res, next) => {
  */
 router.post("/", async (req, res, next) => {
   try {
-    const { id, question, answer, createdat } = req.body.card;
-    const card = await Card.addCard({ id, question, answer, createdat });
+    const { question, answer, createdat } = req.body.card;
+    const card = await Card.addCard({ question, answer, createdat });
     return res.json({
       card
     });
@@ -91,7 +91,7 @@ router.post("/", async (req, res, next) => {
 /** PATCH - /cards/:id
  * desc: update a card
  */
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:_id", async (req, res, next) => {
   return res.json({
     message: "patch"
   });
@@ -100,7 +100,7 @@ router.patch("/:id", async (req, res, next) => {
 /** DELETE - /cards/:id
  * desc: delete a card
  */
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:_id", async (req, res, next) => {
   return res.json({
     message: "delete"
   });

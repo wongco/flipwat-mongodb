@@ -62,7 +62,7 @@ class Card {
 
   /**
    * @description - gets random card from the database
-   * @return {Promise <{ id, text, createdat }>}
+   * @return {Promise <{ _id, text, createdat }>}
    */
   static async getRandomCard() {
     // Get a random entry
@@ -79,11 +79,11 @@ class Card {
 
   /**
    * @description - gets specific card from the database
-   * @property {number} id - id number of card
+   * @property { string } _id - id of card
    * @return {Promise <{ id, text, createdat }>}
    */
-  static async getCard(id) {
-    const result = await cardModel.findOne({ id: +id });
+  static async getCard(_id) {
+    const result = await cardModel.findOne({ _id });
 
     // if no results are found throw error
     if (result.length === 0) {
@@ -95,15 +95,13 @@ class Card {
   /**
    * @description - add a card to the database
    * @param { object } arg - object representing first argument
-   * @param { integer } arg.id - id of card
    * @param { string } arg.question - question on card
    * @param { string } arg.answer - answer for question
    * @param { date } arg.createdat - date question was added
    * @return {Promise <{ id, text, createdat }>}
    */
-  static async addCard({ id, question, answer, createdat = new Date() }) {
+  static async addCard({ question, answer, createdat = new Date() }) {
     const result = new cardModel({
-      id,
       question,
       answer,
       createdat
@@ -114,7 +112,7 @@ class Card {
     if (result.length === 0) {
       throw new Error("No entries exist in the database!");
     }
-    return { id, question, answer, createdat };
+    return result;
   }
 }
 

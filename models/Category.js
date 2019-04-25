@@ -2,9 +2,8 @@ const mongoose = require("mongoose");
 const { MAX_GET_LIMIT } = require("../config");
 
 const categorySchema = new mongoose.Schema({
-  id: Number,
   name: String,
-  createdat: { type: Date, default: Date.now },
+  createdt: { type: Date, default: Date.now },
   cards: [{ type: mongoose.Schema.ObjectId, ref: "Card" }]
 });
 
@@ -20,21 +19,26 @@ class Category {
    * @description - gets list of categories from the database
    * @property {number} limit - numer of items to limit to
    * @property {number} page - pagination option
-   * @return {Promise <[ { id, name, createdat }, ... ]>}
+   * @return {Promise <[ { id, name, cards, createdat }, ... ]>}
    */
   static async getCategories({ page = 0, limit = +MAX_GET_LIMIT }) {
-    const result = await categoryModel
+    const results = await categoryModel
       .find({})
       .skip(page)
       .limit(limit)
-      .populate("cards", "id question answer createdat"); // triggers lookup of ref data
+      .populate("cards", "_id question answer createdat") // triggers lookup of ref data
+      .lean();
 
-    return result;
+    const cleanResults = results.map(rawCategory => {
+      const { _id, name, cards, createdat } = rawCategory;
+      return { id: _id, name, cards, createdat };
+    });
+    return cleanResults;
   }
 
   /**
    * @description - gets random category from the database
-   * @return {Promise <{ id, text, createdat }>}
+   * @return {Promise <{ id, name, cards, createdat }>}
    */
   static async getRandomCategory() {
     // Get a random entry
@@ -43,28 +47,34 @@ class Category {
     const result = await categoryModel
       .findOne({})
       .skip(random)
-      .populate("cards", "id question answer createdat");
+      .populate("cards", "_id question answer createdat")
+      .lean();
 
     if (result.length === 0) {
       throw new Error("No entries exist in the database!");
     }
-    return result;
+
+    const { _id, name, cards, createdat } = result;
+    return { id: _id, name, cards, createdat };
   }
 
   /**
    * @description - gets specific category from the database
-   * @property {number} id - id number of card
-   * @return {Promise <{ id, text, createdat }>}
+   * @property { string } id - id of category
+   * @return {Promise <{ id, name, cards, createdat }>}
    */
-  static async getCategory(id) {
+  static async getCategory(_id) {
     const result = await categoryModel
-      .findOne({ id })
-      .populate("cards", "id question answer createdat");
+      .findOne({ _id })
+      .populate("cards", "_id question answer createdat")
+      .lean();
 
     if (result.length === 0) {
       throw new Error("No entries exist in the database!");
     }
-    return result;
+
+    const { name, cards, createdat } = result;
+    return { id: _id, name, cards, createdat };
   }
 
   /**
@@ -74,18 +84,17 @@ class Category {
    * @param { string } arg.name - name of Category
    * @param { array } arg.cards - list of card ids belonging to Category
    * @param { date } arg.createdat - date category was added
-   * @return {Promise <{ id, name, createdat }>}
+   * @return {Promise <{ id, name, cards, createdat }>}
    */
-  static async addCategory({ id, name, cards = [], createdat = new Date() }) {
+  static async addCategory({ name, cards = [], createdat = new Date() }) {
     const result = new categoryModel({
-      id,
       name,
       createdat,
       cards
     });
     await result.save();
 
-    return { id, name, createdat, cards };
+    return { id: result._id, name, cards, createdat };
   }
 }
 

@@ -51,7 +51,7 @@ router.get("/random", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const category = await Category.getCategory(+id);
+    const category = await Category.getCategory(id);
     return res.json({
       category
     });
@@ -66,9 +66,8 @@ router.get("/:id", async (req, res, next) => {
  */
 router.post("/", async (req, res, next) => {
   try {
-    const { id, name, cards } = req.body.category;
+    const { name, cards } = req.body.category;
     const category = await Category.addCategory({
-      id,
       name,
       cards
     });
