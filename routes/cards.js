@@ -110,4 +110,20 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
+/** POST - /cards/:cardid/category/:categoryid
+ * desc: add a card to a specific category
+ */
+router.post("/:cardId/category/:categoryId", async (req, res, next) => {
+  try {
+    const { cardId, categoryId } = req.params;
+    const card = await Card.addCardToCategory({ cardId, categoryId });
+    return res.json({
+      card
+    });
+  } catch (err) {
+    const error = new APIError("could not add card to category!", 500);
+    return next(error);
+  }
+});
+
 module.exports = router;

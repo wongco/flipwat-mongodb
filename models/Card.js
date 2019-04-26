@@ -158,6 +158,20 @@ class Card {
   static async deleteCard(id) {
     await cardModel.deleteOne({ _id: id });
   }
+
+  /**
+   * @description - delete a category in the database
+   * @param { integer } cardId - id of card
+   * @param { integer } categoryId - id of Category
+   */
+  static async addCardToCategory({ cardId, categoryId }) {
+    await categoryModel.findByIdAndUpdate(
+      { _id: categoryId },
+      { $addToSet: { cards: cardId } }
+    );
+
+    return await Card.getCard(cardId);
+  }
 }
 
 module.exports = Card;
