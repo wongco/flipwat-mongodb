@@ -82,7 +82,11 @@ class Category {
     }
 
     const { name, cards, createdAt, updatedAt } = categoryDocument;
-    return { id, name, cards, createdAt, updatedAt };
+    const cleanCards = cards.map(card => {
+      const { _id, question, answer, createdAt, updatedAt } = card;
+      return { id: _id, question, answer, createdAt, updatedAt };
+    });
+    return { id, name, cards: cleanCards, createdAt, updatedAt };
   }
 
   /**

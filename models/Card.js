@@ -160,7 +160,7 @@ class Card {
   }
 
   /**
-   * @description - delete a category in the database
+   * @description - add a card to a specific category
    * @param { integer } cardId - id of card
    * @param { integer } categoryId - id of Category
    */
